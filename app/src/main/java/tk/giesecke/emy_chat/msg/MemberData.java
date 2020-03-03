@@ -20,13 +20,13 @@ import static tk.giesecke.emy_chat.TerminalFragment.mapView;
 public class MemberData {
 	private final String name;
 	private String displayName;
-	private String color;
+	private int color;
 	private GeoPoint point;
 	private Marker marker;
 	private boolean latLngValid;
 	private final Context appContext;
 
-	public MemberData(Context thisContext, String newName, String newColor) {
+	public MemberData(Context thisContext, String newName, int newColor) {
 		this.name = newName;
 		this.displayName = newName;
 		this.color = newColor;
@@ -48,11 +48,11 @@ public class MemberData {
 		this.displayName = name;
 	}
 
-	public String getColor() {
+	public int getColor() {
 		return color;
 	}
 
-	public void setData(String newName, String newColor) {
+	public void setData(String newName, int newColor) {
 		this.displayName = newName;
 		this.color = newColor;
 	}

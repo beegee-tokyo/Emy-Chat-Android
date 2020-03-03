@@ -1,0 +1,8 @@
+Android app for
+<a href="https://github.com/beegee-tokyo/Emy-Chat">Emy-Chat</a>
+A chat application based on a LoRa Mesh network.
+It requires LoRa nodes based on either Espressif ESP32 or Nordic nRF52 boards with a Semtech SX126x LoRa transceiver.
+See more details on the Github repo for <a href="https://github.com/beegee-tokyo/Emy-Chat">Emy-Chat</a>
+- Supports broadcast and addressed messages
+- Mesh software based on <a href="https://github.com/beegee-tokyo/SX126x-Mesh-Network">my SX126x Mesh Network</a>
+- OpensourceMap support to show the location of nodes

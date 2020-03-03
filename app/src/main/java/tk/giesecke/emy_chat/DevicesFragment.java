@@ -244,7 +244,7 @@ public class DevicesFragment extends ListFragment {
 		if (scanState == ScanState.NONE)
 			return;
 		if (listItems.indexOf(device) < 0) {
-			if ((device.getName() != null) && ((device.getName().startsWith("DR-")) || (device.getName().startsWith("EM-")))) {
+			if ((device.getName() != null) && (device.getName().startsWith("EC-"))) {
 				listItems.add(device);
 				Collections.sort(listItems, DevicesFragment::compareTo);
 				listAdapter.notifyDataSetChanged();
@@ -281,6 +281,7 @@ public class DevicesFragment extends ListFragment {
 		BluetoothDevice device = listItems.get(position - 1);
 		Bundle args = new Bundle();
 		args.putString("device", device.getAddress());
+		args.putString("name", device.getName());
 		Fragment fragment = new TerminalFragment();
 		fragment.setArguments(args);
 		Objects.requireNonNull(getFragmentManager()).beginTransaction().replace(R.id.fragment, fragment, "terminal").addToBackStack(null).commit();

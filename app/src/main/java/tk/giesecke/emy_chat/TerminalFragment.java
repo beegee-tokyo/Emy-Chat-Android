@@ -40,6 +40,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.config.Configuration;
@@ -73,7 +75,6 @@ import static tk.giesecke.emy_chat.MainActivity.appContext;
 import static tk.giesecke.emy_chat.MainActivity.latDouble;
 import static tk.giesecke.emy_chat.MainActivity.longDouble;
 import static tk.giesecke.emy_chat.MainActivity.userName;
-import static tk.giesecke.emy_chat.VisibilityObserver.isVisible;
 
 /**
  * Terminal fragment holds the chat box and the members map.
@@ -90,6 +91,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	private Context thisContext;
 
 	private String deviceAddress;
+	private String deviceNodeId;
 
 	private final String CHAT_TYPE = "1";
 	@SuppressWarnings("FieldCanBeLocal")
@@ -122,12 +124,12 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	static MemberData meEntry = null;
 	private MemberData noUserName;
 
-	private View fragmentView;
+	private static View fragmentView;
 	private EditText sendText;
 	private TextView nodeInfo;
 
-	private LinearLayout mapLayout;
-	private LinearLayout chatLayout;
+	public static LinearLayout mapLayout;
+	public static LinearLayout chatLayout;
 
 	private final double defaultZoom = 14.0;
 
@@ -158,13 +160,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		setHasOptionsMenu(true);
 		setRetainInstance(true);
 		deviceAddress = Objects.requireNonNull(getArguments()).getString("device");
+		deviceNodeId = Objects.requireNonNull(getArguments()).getString("name");
+		deviceNodeId = deviceNodeId.substring(3);
 		messageAdapter = new MessageAdapter(thisContext);
 		memberAdapter = new MemberAdapter();
 		nodesAdapter = new NodesAdapter(thisContext);
 		// Get pointer to shared preferences
 		mPrefs = Objects.requireNonNull(getContext()).getSharedPreferences(sharedPrefName, 0);
-
-		getLifecycle().addObserver(new VisibilityObserver());
 	}
 
 	@Override
@@ -300,6 +302,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 		View showMapBtn = fragmentView.findViewById(R.id.show_map_btn);
 		showMapBtn.setOnClickListener(v -> {
+			MainActivity.showingMap = true;
 			if ((!meEntry.isCoordValid()) || (mapView.getOverlays().isEmpty())) {
 				chatLayout.setVisibility(View.GONE);
 				mapLayout.setVisibility(View.VISIBLE);
@@ -326,6 +329,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 		View showChatBtn = fragmentView.findViewById(R.id.show_chat_btn);
 		showChatBtn.setOnClickListener(v -> {
+			MainActivity.showingMap = false;
 			chatLayout.setVisibility(View.VISIBLE);
 			mapLayout.setVisibility(View.INVISIBLE);
 		});
@@ -378,11 +382,11 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 				userAlert.setPositiveButton(getString(android.R.string.ok), (dialog, whichButton) -> {
 					userName = input.getText().toString();
-						meEntry.setName(userName);
-						send(userName, SET_NAME_TYPE);
-						Handler handler = new Handler();
-						final Runnable sendUserName = () -> send(userName, NAME_TYPE);
-						handler.postDelayed(sendUserName, 500);
+					meEntry.setName(userName);
+					send(userName, SET_NAME_TYPE);
+					Handler handler = new Handler();
+					final Runnable sendUserName = () -> send(userName, NAME_TYPE);
+					handler.postDelayed(sendUserName, 500);
 				});
 
 				userAlert.setNegativeButton(getString(R.string.string_delete), (dialog, whichButton) -> {
@@ -439,6 +443,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		v.setGravity(Gravity.CENTER);
 		toast.setDuration(Toast.LENGTH_LONG);
 		toast.show();
+	}
+
+	private static void showSnackbar(String snackMessage) {
+		Snackbar snackbar = Snackbar
+				.make(fragmentView, snackMessage, Snackbar.LENGTH_SHORT);
+		snackbar.show();
+
 	}
 
 	/*
@@ -503,7 +514,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 								mapView.setTileSource(TileSourceFactory.MAPNIK);
 								mapView.invalidate();
 							}
-							showToast("Using " + file.getAbsolutePath() + " " + source, false);
+							showSnackbar("Using " + file.getAbsolutePath() + " " + source);
 							mapView.setUseDataConnection(false);
 							mapView.invalidate();
 						} catch (Exception ex) {
@@ -515,7 +526,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		}
 
 		if (!foundMap) {
-			showToast(f.getAbsolutePath() + " did not find any map files, using online MAPNIK", true);
+			showSnackbar(f.getAbsolutePath() + " did not find any map files, using online MAPNIK");
 			mapView.setUseDataConnection(true);
 			mapView.setTileSource(TileSourceFactory.MAPNIK);
 			mapView.invalidate();
@@ -550,10 +561,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		mapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
 		// Add yourself to the member data
-		meEntry = new MemberData(getContext(), "me", "#B2EBF2");
+		meEntry = new MemberData(getContext(), "me", R.color.device_me);
 		memberAdapter.add(meEntry);
 		if ((userName != null) && (!userName.equalsIgnoreCase("me"))) {
-			meEntry.setData(userName, "#B2EBF2");
+			meEntry.setData(userName, R.color.device_me);
 		}
 		if ((latDouble != 0.0) && (longDouble != 0.0)) {
 			Marker memberMarker = meEntry.setCoords(new GeoPoint(latDouble, longDouble));
@@ -569,7 +580,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		mapView.invalidate();
 
 		// Add a member for messages that do not contain a member name. They will be shown as "emy_chat"
-		noUserName = new MemberData(getContext(), getString(R.string.default_rcvd_name), "#F06262");
+		noUserName = new MemberData(getContext(), getString(R.string.default_rcvd_name), R.color.device_ec);
 		memberAdapter.add(noUserName);
 	}
 
@@ -637,7 +648,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	};
 
 	private void setInfo() {
-		@SuppressLint("DefaultLocale") String deviceInfo = "Device: " + userName + " Loc: lat " + String.format("%.3f long ", latDouble) +  String.format("%.3f", longDouble);
+		@SuppressLint("DefaultLocale") String deviceInfo = "Device: >" + userName + "< >" + deviceNodeId + "< Loc: lat " + String.format("%.3f long ", latDouble) + String.format("%.3f", longDouble);
 		nodeInfo.setText(deviceInfo);
 	}
 
@@ -680,13 +691,13 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 						// scroll the ListView to the last added element
 						messagesView.setSelection(messagesView.getCount() - 1);
 					}
+					sendText.getText().clear();
 				}
 
 				toBeSent = type + toBeSent;
 
 				byte[] data = toBeSent.getBytes();
 				socket.write(data);
-				sendText.getText().clear();
 			}
 		} catch (Exception e) {
 			onSerialIoError(e);
@@ -727,15 +738,15 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 						}
 						if (BuildConfig.DEBUG) {
 							// TODO for map testing only
-							if ((sender.equalsIgnoreCase("2DDF3A8D")
-									|| (sender.equalsIgnoreCase("BF6CED4C"))
+							if ((sender.equalsIgnoreCase("2DDF3A8F")
+									|| (sender.equalsIgnoreCase("BF6CED4E"))
 									|| (thisUser.getDisplayName().equalsIgnoreCase("WiFi"))
 									|| (thisUser.getDisplayName().equalsIgnoreCase("Console")))
 //									&& !thisUser.isCoordValid()) {
-									) {
+							) {
 
 								GeoPoint wifiLatLong;
-								if ((sender.equalsIgnoreCase("2DDF3A8D"))
+								if ((sender.equalsIgnoreCase("2DDF3A8F"))
 										|| (thisUser.getDisplayName().equalsIgnoreCase("WiFi"))) {
 									wifiLatLong = new GeoPoint(14.483, 120.993); // SM Sucat
 								} else {
@@ -845,16 +856,16 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 			// Now get new list
 			int idx = 1;
 			int nodeNum = 0;
-			int dataLen = rcvdBytes.length-1;
-			dataLen = (dataLen/5)*5;
+			int dataLen = rcvdBytes.length - 1;
+			dataLen = (dataLen / 5) * 5;
 
 			String nodeIdAsString = "";
 			while (idx < dataLen) {
 				for (int nodeIdx = 3; nodeIdx >= 0; nodeIdx--) {
-					nodeIdAsString += String.format("%02X", rcvdBytes[(nodeNum*5)+1+nodeIdx]);
+					nodeIdAsString += String.format("%02X", rcvdBytes[(nodeNum * 5) + 1 + nodeIdx]);
 				}
 				Log.d(TAG, "Node ID " + nodeIdAsString);
-				nodeNum ++;
+				nodeNum++;
 				idx += 5;
 
 				// Check if we know the member already
@@ -915,7 +926,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 			meEntry.setName(userName);
 			Log.d(TAG, "Got new user name " + userName);
 
-			send(userName,NAME_TYPE);
+			send(userName, NAME_TYPE);
 
 			rcvd = rcvd.substring(1);
 			String newUserName;
@@ -927,7 +938,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 					meEntry.setName(newUserName);
 					Log.d(TAG, "Got new user name " + newUserName);
 
-					send(userName,NAME_TYPE);
+					send(userName, NAME_TYPE);
 				}
 			}
 			setInfo();
@@ -979,15 +990,15 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	@Override
 	public void onSerialIoError(Exception e) {
 //		try {
-			MediaPlayer mPlayer = MediaPlayer.create(getContext(), R.raw.dingdong);
+		MediaPlayer mPlayer = MediaPlayer.create(getContext(), R.raw.dingdong);
 
-			try {
-				mPlayer.prepare();
-			} catch (IllegalStateException | IOException ex) {
-				// TODO Auto-generated catch block
-				ex.printStackTrace();
-			}
-			mPlayer.start();
+		try {
+			mPlayer.prepare();
+		} catch (IllegalStateException | IOException ex) {
+			// TODO Auto-generated catch block
+			ex.printStackTrace();
+		}
+		mPlayer.start();
 //		} catch (Exception exp) {
 //			exp.printStackTrace();
 //		}

@@ -8,8 +8,8 @@ android {
         vectorDrawables.useSupportLibrary true
 
         applicationId 'tk.giesecke.emy_chat'
-        versionCode 13
-        versionName '1.3'
+        versionCode 10
+        versionName '1.0'
         project.ext.set("archivesBaseName", "tk.giesecke.emy_chat-V_" + defaultConfig.versionName)
     }
     compileOptions {
