@@ -183,8 +183,16 @@ public class DevicesFragment extends ListFragment {
 			case R.id.dev_about:
 				androidx.appcompat.app.AlertDialog.Builder aboutAlert = new androidx.appcompat.app.AlertDialog.Builder(Objects.requireNonNull(getContext()));
 
+				final StringBuilder text = new StringBuilder(getString(R.string.about_text));
+				String version = "";
+				try {
+					version = Objects.requireNonNull(getActivity()).getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName;
+				} catch (PackageManager.NameNotFoundException e) {
+					e.printStackTrace();
+				}
+				text.append(getString(R.string.about_version, version));
 				aboutAlert.setTitle(getString(R.string.menu_about));
-				aboutAlert.setMessage(getString(R.string.about_text));
+				aboutAlert.setMessage(text);
 
 				aboutAlert.setPositiveButton("Ok", (dialog, whichButton) -> {
 					// Canceled.

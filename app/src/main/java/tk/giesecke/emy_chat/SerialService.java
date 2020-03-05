@@ -1,37 +1,27 @@
 package tk.giesecke.emy_chat;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.RemoteInput;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 
-import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
-import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
 import static tk.giesecke.emy_chat.MainActivity.userName;
 import static tk.giesecke.emy_chat.TerminalFragment.cCHAT_TYPE;
 import static tk.giesecke.emy_chat.TerminalFragment.cNAME_TYPE;
@@ -42,10 +32,6 @@ import static tk.giesecke.emy_chat.TerminalFragment.cNAME_TYPE;
  */
 public class SerialService extends Service implements SerialListener {
 
-	// Key for the string that's delivered in the action's intent.
-	private static final String KEY_TEXT_REPLY = "key_text_reply";
-
-	private Notification msgNotification;
 	private NotificationManager notifManager;
 
 	class SerialBinder extends Binder {
@@ -56,7 +42,7 @@ public class SerialService extends Service implements SerialListener {
 
 	private enum QueueType {Connect, ConnectError, Read, IoError}
 
-	private class QueueItem {
+	private static class QueueItem {
 		final QueueType type;
 		final byte[] data;
 		final Exception e;
@@ -200,7 +186,9 @@ public class SerialService extends Service implements SerialListener {
 	}
 
 	private void cancelNotification() {
-		notifManager.cancelAll();
+		if (notifManager != null) {
+			notifManager.cancelAll();
+		}
 		stopForeground(true);
 	}
 
@@ -335,6 +323,7 @@ public class SerialService extends Service implements SerialListener {
 
 			notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
+			Notification msgNotification;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				NotificationChannel nc = new NotificationChannel(Constants.NOTIFICATION_CHANNEL, "Background message", NotificationManager.IMPORTANCE_DEFAULT);
 				nc.setShowBadge(false);
@@ -347,13 +336,5 @@ public class SerialService extends Service implements SerialListener {
 				msgNotification.notify();
 			}
 		}
-	}
-
-	private CharSequence getMessageText(Intent intent) {
-		Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-		if (remoteInput != null) {
-			return remoteInput.getCharSequence(KEY_TEXT_REPLY);
-		}
-		return null;
 	}
 }

@@ -1,6 +1,7 @@
 <resources>
     <string name="my_app_name">Emy Chat</string>
     <string name="devices">Emy Chat Nodes</string>
+    <string name="about_version">\n\nApp version: %s</string>
 
     <string name="location_permission_title">Location permission required</string>
     <string name="location_permission_message">This app does use location information because scanning for Bluetooth LE devices requires this permission\nIn addition the location information is sent to other users in the EmyChat mesh network</string>
@@ -19,7 +20,6 @@
     <string name="devices_bt_settings">Bluetooth settings</string>
     <string name="devices_no_name">-unnamed-</string>
 
-    <string name="chat_joined">joined the channel</string>
     <string name="chat_leave">left the channel</string>
 
     <string name="chat_connected">Connected</string>
@@ -35,8 +35,5 @@
     <string name="settings_username_title">Enter or change your username</string>
 
     <string name="string_delete">Delete</string>
-
-    <!--Notifications-->
-    <string name="reply_label">Reply</string>
 
 </resources>

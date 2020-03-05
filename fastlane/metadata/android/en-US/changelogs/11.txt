@@ -1,0 +1,2 @@
+Improved message notifications when app is in background
+Added time stamp to messages in the chat window

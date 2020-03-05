@@ -73,7 +73,7 @@ public class MemberData {
 
 		Rect bounds = new Rect();
 		paint.getTextBounds(text, 0, text.length(), bounds);
-		float startPoint = (bm.getWidth()/2)-(bounds.width()/2);
+		float startPoint = (bm.getWidth()/2f)-(bounds.width()/2f);
 		if ((bm.getWidth() - bounds.width()) <= 0) {
 			// Text too long, make it smaller
 			paint.setTextSize(20);
@@ -81,7 +81,7 @@ public class MemberData {
 			startPoint = 5;
 		}
 		Canvas canvas = new Canvas(bm);
-		canvas.drawText(text, startPoint, bm.getHeight()/2, paint);
+		canvas.drawText(text, startPoint, bm.getHeight()/2f, paint);
 
 		return new BitmapDrawable(this.appContext.getResources(), bm);
 	}

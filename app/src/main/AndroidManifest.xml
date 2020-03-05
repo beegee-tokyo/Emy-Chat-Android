@@ -15,7 +15,8 @@
         android:icon="@mipmap/ic_launcher_round"
         android:label="@string/my_app_name"
         android:theme="@style/AppTheme"
-        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning"
+        android:supportsRtl="true">
         <activity
             android:name="tk.giesecke.emy_chat.MainActivity"
             android:label="@string/my_app_name"

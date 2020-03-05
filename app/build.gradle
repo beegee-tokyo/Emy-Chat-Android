@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
-        targetSdkVersion 28
+        targetSdkVersion 29
         minSdkVersion 19
         vectorDrawables.useSupportLibrary true
 
         applicationId 'tk.giesecke.emy_chat'
-        versionCode 11
-        versionName '1.1'
+        versionCode 12
+        versionName '1.2'
         project.ext.set("archivesBaseName", "tk.giesecke.emy_chat-V_" + defaultConfig.versionName)
     }
     compileOptions {

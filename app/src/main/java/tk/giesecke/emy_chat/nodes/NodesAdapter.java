@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import tk.giesecke.emy_chat.R;
 
@@ -63,7 +64,7 @@ public class NodesAdapter extends BaseAdapter {
 		NodesViewHolder holder = new NodesViewHolder();
 		LayoutInflater nodesInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
 		Nodes node = nodes.get(position);
-		convertView = nodesInflater.inflate(R.layout.node_list, null);
+		convertView = Objects.requireNonNull(nodesInflater).inflate(R.layout.node_list, null);
 		holder.nodes_body = convertView.findViewById(R.id.nodes_body);
 		holder.nodes_body.setText(node.get());
 		return convertView;
@@ -74,6 +75,5 @@ public class NodesAdapter extends BaseAdapter {
  * The holder for the data of a message
  */
 class NodesViewHolder {
-	public TextView name;
 	TextView nodes_body;
 }

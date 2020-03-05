@@ -11,8 +11,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -57,7 +57,6 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -98,12 +97,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	private final String LOCATION_TYPE = "2";
 	private final String NAME_TYPE = "3";
 	private final String SET_NAME_TYPE = "5";
-	@SuppressWarnings("FieldCanBeLocal")
-	public static char cCHAT_TYPE = '1';
+	static final char cCHAT_TYPE = '1';
 	@SuppressWarnings("FieldCanBeLocal")
 	private final char cLOCATION_TYPE = '2';
-	@SuppressWarnings("FieldCanBeLocal")
-	public static char cNAME_TYPE = '3';
+	static final char cNAME_TYPE = '3';
 	@SuppressWarnings("FieldCanBeLocal")
 	private final char cMAP_TYPE = '4';
 	@SuppressWarnings("FieldCanBeLocal")
@@ -161,7 +158,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		setRetainInstance(true);
 		deviceAddress = Objects.requireNonNull(getArguments()).getString("device");
 		deviceNodeId = Objects.requireNonNull(getArguments()).getString("name");
-		deviceNodeId = deviceNodeId.substring(3);
+		deviceNodeId = Objects.requireNonNull(deviceNodeId).substring(3);
 		messageAdapter = new MessageAdapter(thisContext);
 		memberAdapter = new MemberAdapter();
 		nodesAdapter = new NodesAdapter(thisContext);
@@ -402,8 +399,16 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 			case R.id.chat_about:
 				androidx.appcompat.app.AlertDialog.Builder aboutAlert = new androidx.appcompat.app.AlertDialog.Builder(thisContext);
 
+				final StringBuilder text = new StringBuilder(getString(R.string.about_text));
+				String version = "";
+				try {
+					version = Objects.requireNonNull(getActivity()).getPackageManager().getPackageInfo(getActivity().getPackageName(), 0).versionName;
+				} catch (PackageManager.NameNotFoundException e) {
+					e.printStackTrace();
+				}
+				text.append(getString(R.string.about_version, version));
 				aboutAlert.setTitle(getString(R.string.menu_about));
-				aboutAlert.setMessage(getString(R.string.about_text));
+				aboutAlert.setMessage(text);
 
 				aboutAlert.setPositiveButton(getString(android.R.string.ok), (dialog, whichButton) -> {
 					// Canceled.
@@ -549,14 +554,10 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 		mapView.setMapOrientation(orientation, false);
 		final String latitudeString = mPrefs.getString(PREFS_LATITUDE_STRING, "14.0");
 		final String longitudeString = mPrefs.getString(PREFS_LONGITUDE_STRING, "121.0");
-		double latitude = 0.0;
-		if (latitudeString != null) {
-			latitude = Double.parseDouble(latitudeString);
-		}
-		double longitude = 0.0;
-		if (longitudeString != null) {
-			longitude = Double.parseDouble(longitudeString);
-		}
+		double latitude;
+		latitude = Double.parseDouble(latitudeString);
+		double longitude;
+		longitude = Double.parseDouble(longitudeString);
 		mapView.getController().setCenter(new GeoPoint(latitude, longitude));
 
 		// Add yourself to the member data

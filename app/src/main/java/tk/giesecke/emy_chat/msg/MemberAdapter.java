@@ -6,7 +6,6 @@ import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import tk.giesecke.emy_chat.R;
 
@@ -17,10 +16,7 @@ import tk.giesecke.emy_chat.R;
 public class MemberAdapter extends BaseAdapter {
 	private final List<MemberData> members = new ArrayList<>();
 
-	private final String[] colors = {"#FFCDD2", "#B2DFDB", "#FFF9C4", "#C5CAE9",
-			"#F8BBD0", "#C8E6C9", "#FFECB3", "#BBDEFB",
-			"#E1BEE7", "#FFE0B2"};
-	final int[] boxColors = {R.color.device_01, R.color.device_02, R.color.device_03, R.color.device_04,
+	private final int[] boxColors = {R.color.device_01, R.color.device_02, R.color.device_03, R.color.device_04,
 			R.color.device_05, R.color.device_06, R.color.device_07, R.color.device_08,
 			R.color.device_09, R.color.device_10, R.color.device_11, R.color.device_12,
 			R.color.device_13, R.color.device_14, R.color.device_15, R.color.device_16,
