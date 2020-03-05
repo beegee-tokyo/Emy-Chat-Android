@@ -8,8 +8,8 @@ android {
         vectorDrawables.useSupportLibrary true
 
         applicationId 'tk.giesecke.emy_chat'
-        versionCode 10
-        versionName '1.0'
+        versionCode 11
+        versionName '1.1'
         project.ext.set("archivesBaseName", "tk.giesecke.emy_chat-V_" + defaultConfig.versionName)
     }
     compileOptions {
@@ -29,14 +29,5 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'org.osmdroid:osmdroid-android:6.1.5'
-    // ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
-    // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata:2.2.0"
-    // Lifecycles only (without ViewModel or LiveData)
-    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
-    // Saved state module for ViewModel
-    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
-    // Annotation processor
-    implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
+    implementation 'joda-time:joda-time:2.10.1'
 }

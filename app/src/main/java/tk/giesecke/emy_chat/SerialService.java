@@ -45,6 +45,9 @@ public class SerialService extends Service implements SerialListener {
 	// Key for the string that's delivered in the action's intent.
 	private static final String KEY_TEXT_REPLY = "key_text_reply";
 
+	private Notification msgNotification;
+	private NotificationManager notifManager;
+
 	class SerialBinder extends Binder {
 		SerialService getService() {
 			return SerialService.this;
@@ -197,6 +200,7 @@ public class SerialService extends Service implements SerialListener {
 	}
 
 	private void cancelNotification() {
+		notifManager.cancelAll();
 		stopForeground(true);
 	}
 
@@ -256,9 +260,9 @@ public class SerialService extends Service implements SerialListener {
 					});
 				} else {
 					queue2.add(new QueueItem(QueueType.Read, data, null));
-					// TODO show a notification with the received message
-					showMsgNotification(data);
 				}
+				// Show a notification with the received message
+				showMsgNotification(data);
 			}
 		}
 	}
@@ -281,6 +285,15 @@ public class SerialService extends Service implements SerialListener {
 					cancelNotification();
 					disconnect();
 				}
+				MediaPlayer mp1 = MediaPlayer.create(this, R.raw.dingdong);
+				mp1.setOnPreparedListener(mp -> mp1.start());
+				mp1.setOnCompletionListener(mp -> mp1.release());
+				try {
+					mp1.prepare();
+				} catch (IOException exp) {
+					exp.printStackTrace();
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -293,18 +306,13 @@ public class SerialService extends Service implements SerialListener {
 			if (userName != null) {
 				String mention = "@" + userName;
 				if (rcvd.contains(mention)) {
+					MediaPlayer mp1 = MediaPlayer.create(this, R.raw.signal);
+					mp1.setOnPreparedListener(mp -> mp1.start());
+					mp1.setOnCompletionListener(mp -> mp1.release());
 					try {
-						MediaPlayer mPlayer = MediaPlayer.create(this, R.raw.signal);
-
-						try {
-							mPlayer.prepare();
-						} catch (IllegalStateException | IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						mPlayer.start();
-					} catch (Exception exp) {
-						exp.printStackTrace();
+						mp1.prepare();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -325,24 +333,27 @@ public class SerialService extends Service implements SerialListener {
 					.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 					.setWhen(System.currentTimeMillis());
 
+			notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				NotificationChannel nc = new NotificationChannel(Constants.NOTIFICATION_CHANNEL, "Background message", NotificationManager.IMPORTANCE_DEFAULT);
 				nc.setShowBadge(false);
 				nc.setLightColor(0xAAAAAA);
-				NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-				nm.createNotificationChannel(nc);
-				nm.notify(15, builder.build());
+				notifManager.createNotificationChannel(nc);
+				msgNotification = builder.build();
+				notifManager.notify(15, msgNotification);
 			} else {
-				builder.build().notify();
+				msgNotification = builder.build();
+				msgNotification.notify();
 			}
 		}
 	}
 
-    private CharSequence getMessageText(Intent intent) {
-        Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
-        if (remoteInput != null) {
-            return remoteInput.getCharSequence(KEY_TEXT_REPLY);
-        }
-        return null;
-    }
+	private CharSequence getMessageText(Intent intent) {
+		Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+		if (remoteInput != null) {
+			return remoteInput.getCharSequence(KEY_TEXT_REPLY);
+		}
+		return null;
+	}
 }

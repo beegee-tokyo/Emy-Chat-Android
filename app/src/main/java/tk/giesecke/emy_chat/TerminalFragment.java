@@ -264,7 +264,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	@SuppressLint("DefaultLocale")
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
 		// For the map
 		Configuration.getInstance().load(thisContext, PreferenceManager.getDefaultSharedPreferences(thisContext));
 
@@ -648,7 +647,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	};
 
 	private void setInfo() {
-		@SuppressLint("DefaultLocale") String deviceInfo = "Device: >" + userName + "< >" + deviceNodeId + "< Loc: lat " + String.format("%.3f long ", latDouble) + String.format("%.3f", longDouble);
+		@SuppressLint("DefaultLocale") String deviceInfo = ">" + userName + "< >" + deviceNodeId + "< Loc: lat " + String.format("%.3f long ", latDouble) + String.format("%.3f", longDouble);
 		nodeInfo.setText(deviceInfo);
 	}
 
@@ -741,9 +740,7 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 							if ((sender.equalsIgnoreCase("2DDF3A8F")
 									|| (sender.equalsIgnoreCase("BF6CED4E"))
 									|| (thisUser.getDisplayName().equalsIgnoreCase("WiFi"))
-									|| (thisUser.getDisplayName().equalsIgnoreCase("Console")))
-//									&& !thisUser.isCoordValid()) {
-							) {
+									|| (thisUser.getDisplayName().equalsIgnoreCase("Console")))) {
 
 								GeoPoint wifiLatLong;
 								if ((sender.equalsIgnoreCase("2DDF3A8F"))
@@ -771,29 +768,18 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 				showToast(rcvd.substring(1), false);
 				return;
 			}
+			// remove trailing whitespaces
+			int len = rcvd.length();
+			for (; len > 0; len--) {
+				if (!Character.isWhitespace(rcvd.charAt(len - 1)))
+					break;
+			}
+			rcvd = rcvd.substring(0, len);
+
 			final Message message = new Message(rcvd, thisUser, myHistory);
 			messageAdapter.add(message);
 			// scroll the ListView to the last added element
 			messagesView.setSelection(messagesView.getCount() - 1);
-
-			if (userName != null) {
-				String mention = "@" + userName;
-				if (rcvd.contains(mention)) {
-					try {
-						MediaPlayer mPlayer = MediaPlayer.create(getContext(), R.raw.signal);
-
-						try {
-							mPlayer.prepare();
-						} catch (IllegalStateException | IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						mPlayer.start();
-					} catch (Exception exp) {
-						exp.printStackTrace();
-					}
-				}
-			}
 		} else if (rcvdBytes[0] == cLOCATION_TYPE) {
 			// we got coordinates of a user
 			// 2<user>{"lat":48.75608,"long",2.302038}
@@ -961,17 +947,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 	public void onSerialConnect() {
 		showToast(getString(R.string.chat_connected), false);
 		connected = Connected.True;
-//		if (userName != null) {
-//			send("~" + userName + " " + getString(R.string.chat_joined), CHAT_TYPE);
-//			Handler handler = new Handler();
-//			final Runnable sendUserName = new Runnable() {
-//				@Override
-//				public void run() {
-//					send(userName, NAME_TYPE);
-//				}
-//			};
-//			handler.postDelayed(sendUserName, 500);
-//		}
 		thisMenu.findItem(R.id.reconnect).setVisible(false);
 	}
 
@@ -989,19 +964,6 @@ public class TerminalFragment extends Fragment implements ServiceConnection, Ser
 
 	@Override
 	public void onSerialIoError(Exception e) {
-//		try {
-		MediaPlayer mPlayer = MediaPlayer.create(getContext(), R.raw.dingdong);
-
-		try {
-			mPlayer.prepare();
-		} catch (IllegalStateException | IOException ex) {
-			// TODO Auto-generated catch block
-			ex.printStackTrace();
-		}
-		mPlayer.start();
-//		} catch (Exception exp) {
-//			exp.printStackTrace();
-//		}
 		showToast(getString(R.string.chat_connection_error), true);
 		disconnect();
 		thisMenu.findItem(R.id.reconnect).setVisible(true);
